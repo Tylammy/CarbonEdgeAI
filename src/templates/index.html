@@ -4,6 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Image Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f8;
+            color: #333;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #4CAF50;
+            font-size: 2em;
+        }
+
+        #upload-form {
+            margin: 20px 0;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        p {
+            font-size: 1.2em;
+        }
+
+        #prediction_result, #emissions_result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        #loading {
+            margin-top: 10px;
+            display: none;
+            font-size: 1.1em;
+            color: #888;
+        }
+    </style>
 </head>
 <body>
     <h1>Upload an Image for Prediction</h1>
@@ -18,6 +71,9 @@
     <h2>Prediction Result:</h2>
     <p id="prediction_result">Prediction Result: Predicted class: null</p>
 
+    <h2>Energy Usage:</h2>
+    <p id="emissions_result">Energy used: 0 kWh</p>
+
     <script>
         // Handle the image upload and make the prediction request
         function uploadImage(event) {
@@ -26,7 +82,7 @@
             var formData = new FormData();
             var fileInput = document.getElementById('file');
             formData.append("file", fileInput.files[0]);
-
+    
             // Send image data to the Flask backend
             fetch("/predict", {
                 method: "POST",
@@ -34,16 +90,19 @@
             })
             .then(response => response.json())
             .then(data => {
-                // Show the prediction result in the frontend
+                // Show the prediction result and energy usage
                 if (data.predicted_class !== undefined) {
                     document.getElementById("prediction_result").innerText = "Predicted class: " + data.predicted_class;
+                    document.getElementById("emissions_result").innerText = "Energy used: " + data.emissions.energy_consumed + " kWh";  // Display energy usage
                 } else {
                     document.getElementById("prediction_result").innerText = "Prediction failed!";
+                    document.getElementById("emissions_result").innerText = "Energy used: 0 kWh"; // If prediction fails, reset energy to 0
                 }
             })
             .catch(error => {
                 console.error("Error:", error);
                 document.getElementById("prediction_result").innerText = "An error occurred!";
+                document.getElementById("emissions_result").innerText = "Energy used: 0 kWh"; // If error occurs, reset energy to 0
             });
         }
     </script>
