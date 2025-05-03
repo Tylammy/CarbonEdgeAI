@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Prediction</title>
+</head>
+<body>
+    <h1>Upload an Image for Prediction</h1>
+    
+    <!-- Form for uploading an image -->
+    <form id="upload-form" onsubmit="uploadImage(event)">
+        <label for="file">Upload Image</label>
+        <input type="file" id="file" name="file" accept="image/*" required>
+        <button type="submit">Upload Image</button>
+    </form>
+    
+    <h2>Prediction Result:</h2>
+    <p id="prediction_result">Prediction Result: Predicted class: null</p>
+
+    <script>
+        // Handle the image upload and make the prediction request
+        function uploadImage(event) {
+            event.preventDefault();  // Prevent default form submission
+            
+            var formData = new FormData();
+            var fileInput = document.getElementById('file');
+            formData.append("file", fileInput.files[0]);
+
+            // Send image data to the Flask backend
+            fetch("/predict", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Show the prediction result in the frontend
+                if (data.predicted_class !== undefined) {
+                    document.getElementById("prediction_result").innerText = "Predicted class: " + data.predicted_class;
+                } else {
+                    document.getElementById("prediction_result").innerText = "Prediction failed!";
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("prediction_result").innerText = "An error occurred!";
+            });
+        }
+    </script>
+</body>
+</html>
